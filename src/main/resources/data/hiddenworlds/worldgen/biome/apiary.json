@@ -1,0 +1,75 @@
+{
+  "temperature": 0.7,
+  "downfall": 0.8,
+  "has_precipitation": false,
+  "effects": {
+    "sky_color": 7972607,
+    "fog_color": 12638463,
+    "water_color": 4159204,
+    "water_fog_color": 329011,
+    "music": {
+      "sound": "minecraft:music.overworld.flower_forest",
+      "min_delay": 12000,
+      "max_delay": 24000,
+      "replace_current_music": true
+    }
+  },
+  "creature_spawn_probability": 0.2,
+  "spawners": {
+    "creature": [
+      {
+        "type": "minecraft:bee",
+        "weight": 50,
+        "minCount": 4,
+        "maxCount": 8
+      }
+    ]
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:cave",
+      "minecraft:cave_extra_underground",
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "minecraft:flower_forest_flowers",
+      "minecraft:flower_flower_forest",
+      "hiddenworlds:towering_oak_tree",
+      "minecraft:brown_mushroom_normal",
+      "minecraft:red_mushroom_normal"
+    ],
+    [
+      {
+        "feature": {
+          "type": "hiddenworlds:top_layer",
+          "config": {
+            "targets": [
+              {
+                "target": {
+                  "predicate_type": "minecraft:block_match",
+                  "block": "minecraft:dirt"
+                },
+                "state": {
+                  "Name": "minecraft:grass_block"
+                }
+              }
+            ]
+          }
+        },
+        "placement": []
+      }
+    ]
+  ]
+}

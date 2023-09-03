@@ -1,0 +1,11 @@
+{
+  "type": "hiddenworlds:apiary",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "hiddenworlds:apiary",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "hiddenworlds:apiary"
+    }
+  }
+}
