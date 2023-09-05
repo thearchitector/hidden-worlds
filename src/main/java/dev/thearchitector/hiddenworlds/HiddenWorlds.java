@@ -45,7 +45,7 @@ public class HiddenWorlds {
         // world gen
         LOGGER.info("Registering world generation references...");
         XFeatures.registerAll(modEventBus);
-        XTrees.registerAll(modEventBus);
+        XTreeParts.registerAll(modEventBus);
         
         // misc
         CREATIVE_MODE_TABS.register(MODID,

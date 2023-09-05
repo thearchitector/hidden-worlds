@@ -2,16 +2,16 @@ package dev.thearchitector.hiddenworlds.features.trunks;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thearchitector.hiddenworlds.registries.XTrees;
+import dev.thearchitector.hiddenworlds.HiddenWorlds;
+import dev.thearchitector.hiddenworlds.registries.XTreeParts;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.LevelSimulatedReader;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
@@ -59,7 +59,7 @@ public class ToweringTrunkPlacer extends CherryTrunkPlacer {
 
     @Override
     protected TrunkPlacerType<?> type() {
-        return XTrees.TOWERING_TRUNK_PLACER.get();
+        return XTreeParts.TrunkPlacers.TOWERING_TRUNK_PLACER.get();
     }
 
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(
@@ -89,32 +89,21 @@ public class ToweringTrunkPlacer extends CherryTrunkPlacer {
 
         // backfill each column of the trunk to soil level
         BlockPos.MutableBlockPos targetPos = new BlockPos.MutableBlockPos();
+        for(int x = 0; x < this.scaleFactor; ++x) {
+            for(int z = 0; z < this.scaleFactor; ++z) {
+                if(x == 0 && z == 0) continue;
 
-        for (int x = 0; x < this.scaleFactor; x++) {
-            for (int z = 0; z < this.scaleFactor; z++) {
-                // we already know the origin block is on solid ground
-                if (x == 0 && z == 0) {
-                    setDirtAt(pLevel, pBlockSetter, pRandom, pPos.below(), pConfig);
-                    continue;
+                targetPos.setWithOffset(pPos, x, -1, z);
+
+                for(int y = targetPos.getY(); this.validTreePos(pLevel, targetPos); targetPos.setY(--y)) {
+                    pBlockSetter.accept(targetPos, pConfig.trunkProvider.getState(pRandom, targetPos));
                 }
 
-                targetPos.setWithOffset(pPos, x, 0, z);
-
-                while (true) {
-                    boolean isHovering = this.validTreePos(pLevel, targetPos);
-
-                    if (!isHovering) {
-                        setDirtAt(pLevel, pBlockSetter, pRandom, targetPos, pConfig);
-                        break;
-                    }
-
-                    pBlockSetter.accept(
-                        targetPos, pConfig.trunkProvider.getState(pRandom, targetPos));
-                    targetPos.move(Direction.DOWN);
-                }
+                pBlockSetter.accept(targetPos, pConfig.dirtProvider.getState(pRandom, targetPos));
             }
         }
 
+        // create central trunk
         for (int i1 = 0; i1 < l; ++i1) {
             this.placeLog(
                 pLevel, pBlockSetter, pRandom, pPos.above(i1 * this.scaleFactor), pConfig);
@@ -188,48 +177,37 @@ public class ToweringTrunkPlacer extends CherryTrunkPlacer {
         }
     }
 
+    /**
+     * Fill the scaled log position using the provided block and property setters. If a single block within
+     * the scaled area cannot be placed, the entire area is not filled.
+     *
+     * @param pLevel
+     * @param pBlockSetter
+     * @param pRandom
+     * @param pPos
+     * @param pConfig
+     * @param pPropertySetter
+     */
     @Override
     protected boolean placeLog(
         LevelSimulatedReader pLevel, BiConsumer<BlockPos, BlockState> pBlockSetter,
         RandomSource pRandom, BlockPos pPos, TreeConfiguration pConfig,
         Function<BlockState, BlockState> pPropertySetter
     ) {
-        ArrayList<BlockPos> appliedPositions = new ArrayList<>(
-            this.scaleFactor * this.scaleFactor * this.scaleFactor);
+        ArrayList<BlockPos> targets = new ArrayList<>(this.scaleFactor * this.scaleFactor * this.scaleFactor);
+        int scaleOffset = this.scaleFactor - 1;
 
-        BlockPos.MutableBlockPos targetPos = new BlockPos.MutableBlockPos();
-
-        for (int x = 0; x < this.scaleFactor; x++) {
-            for (int y = 0; y < this.scaleFactor; y++) {
-                for (int z = 0; z < this.scaleFactor; z++) {
-                    targetPos.setWithOffset(pPos, x, y, z);
-
-                    //                    if (!this.validTreePos(pLevel, targetPos)) {
-                    //                        return false;
-                    //                    }
-
-                    pBlockSetter.accept(targetPos,
-                        pPropertySetter.apply(pConfig.trunkProvider.getState(pRandom, targetPos))
-                    );
-                    //                    appliedPositions.add(targetPos.immutable());
-                }
-            }
+        for (BlockPos targetPos : BlockPos.betweenClosed(
+                pPos, pPos.offset(scaleOffset, scaleOffset, scaleOffset))
+        ) {
+            if (!this.validTreePos(pLevel, pPos)) return false;
+            targets.add(targetPos.immutable());
         }
 
-        //        for (BlockPos pos : appliedPositions) {
-        //            pBlockSetter.accept(
-        //                pos, pPropertySetter.apply(pConfig.trunkProvider.getState(pRandom, pos)));
-        //        }
+        for(BlockPos target : targets) {
+            pBlockSetter.accept(target, pPropertySetter.apply(pConfig.trunkProvider.getState(pRandom, target)));
+        }
 
         return true;
-    }
-
-    protected boolean validTreePos(LevelSimulatedReader pLevel, BlockPos pPos) {
-        return pLevel.isStateAtPosition(pPos, (state) -> {
-            return state.isAir() || (
-                state.is(BlockTags.REPLACEABLE_BY_TREES) && !state.is(Blocks.OAK_LOG) && !state.is(
-                    Blocks.OAK_LEAVES)
-            );
-        });
     }
 }

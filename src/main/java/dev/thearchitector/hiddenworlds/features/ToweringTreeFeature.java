@@ -34,6 +34,7 @@ public class ToweringTreeFeature extends TreeFeature {
      */
     @Override
     public boolean place(FeaturePlaceContext<TreeConfiguration> pContext) {
+
         WorldGenRegion worldGenRegion = ((WorldGenRegion)pContext.level());
         int writeCutoff = worldGenRegion.writeRadiusCutoff;
         worldGenRegion.writeRadiusCutoff = this.scaleFactor;

@@ -87,6 +87,75 @@
       "hanging_leaves_chance": 0.16666667,
       "hanging_leaves_extension_chance": 0.33333334
     },
-    "decorators": []
+    "decorators": [
+      {
+        "type": "hiddenworlds:alter_uneven_ground",
+        "provider": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 400,
+              "data": {
+                "Name": "minecraft:rooted_dirt"
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "minecraft:oak_log",
+                "Properties": {
+                  "axis": "x"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "minecraft:oak_log",
+                "Properties": {
+                  "axis": "y"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "minecraft:oak_log",
+                "Properties": {
+                  "axis": "z"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "minecraft:stripped_oak_log",
+                "Properties": {
+                  "axis": "x"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "minecraft:stripped_oak_log",
+                "Properties": {
+                  "axis": "y"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "minecraft:stripped_oak_log",
+                "Properties": {
+                  "axis": "z"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
   }
 }
