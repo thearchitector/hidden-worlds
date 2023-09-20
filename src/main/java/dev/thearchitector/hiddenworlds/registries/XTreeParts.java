@@ -2,12 +2,12 @@ package dev.thearchitector.hiddenworlds.registries;
 
 import com.mojang.serialization.Codec;
 import dev.thearchitector.hiddenworlds.HiddenWorlds;
-import dev.thearchitector.hiddenworlds.features.tree_decorators.AlterUnevenGroundDecorator;
+import dev.thearchitector.hiddenworlds.features.decorators.AlterUnevenGroundDecorator;
+import dev.thearchitector.hiddenworlds.features.foliage.ToweringFoliagePlacer;
 import dev.thearchitector.hiddenworlds.features.trunks.ToweringTrunkPlacer;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.levelgen.feature.treedecorators.AlterGroundDecorator;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
@@ -35,6 +35,20 @@ public class XTreeParts {
                 String id, Codec<T> codec
         ) {
             return TRUNK_PLACER_TYPES.register(id, () -> new TrunkPlacerType<>(codec));
+        }
+    }
+
+    public abstract static class FoiliagePlacer {
+        private static final DeferredRegister<FoliagePlacerType<?>> FOLIAGE_PLACERS =
+                DeferredRegister.create(
+                        ForgeRegistries.TREE_DECORATOR_TYPES, HiddenWorlds.MODID);
+
+        public static final RegistryObject<FoliagePlacerType<ToweringFoliagePlacer>> UNEVEN_ALTER_GROUND_DECORATOR = registerFoliagePlacer(
+                "alter_uneven_ground", AlterUnevenGroundDecorator.CODEC
+        );
+
+        private static <T extends FoliagePlacer> RegistryObject<FoliagePlacerType<T>> registerFoliagePlacer(String id, Codec<T> codec) {
+            return FOLIAGE_PLACERS.register(id, () -> new FoliagePlacerType<>(codec));
         }
     }
 

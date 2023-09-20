@@ -1,6 +1,7 @@
 package dev.thearchitector.hiddenworlds.features;
 
 import com.mojang.serialization.Codec;
+import dev.thearchitector.hiddenworlds.features.foliage.ToweringFoliagePlacer;
 import dev.thearchitector.hiddenworlds.features.trunks.ToweringTrunkPlacer;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -39,6 +40,7 @@ public class ToweringTreeFeature extends TreeFeature {
         int writeCutoff = worldGenRegion.writeRadiusCutoff;
         worldGenRegion.writeRadiusCutoff = this.scaleFactor;
         ((ToweringTrunkPlacer)pContext.config().trunkPlacer).scaleFactor = this.scaleFactor;
+        ((ToweringFoliagePlacer)pContext.config().foliagePlacer).scaleFactor = this.scaleFactor;
 
         boolean generated = super.place(pContext);
 

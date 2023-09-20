@@ -109,32 +109,39 @@ public class ToweringTrunkPlacer extends CherryTrunkPlacer {
                 pLevel, pBlockSetter, pRandom, pPos.above(i1 * this.scaleFactor), pConfig);
         }
 
-        List<FoliagePlacer.FoliageAttachment> list = new ArrayList<>();
-        //        if (flag) {
-        //            list.add(new FoliagePlacer.FoliageAttachment(pPos.above(l * this
-        //            .scaleFactor), 0, false));
-        //        }
-
-        BlockPos.MutableBlockPos branchOriginPos = new BlockPos.MutableBlockPos();
-        Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(pRandom);
-        Function<BlockState, BlockState> function = (blockState) -> blockState.trySetValue(
-            RotatedPillarBlock.AXIS, direction.getAxis());
-
-        //list.add(
-        this.generateBranch(pLevel, pBlockSetter, pRandom, pFreeTreeHeight, pPos, pConfig, function,
-            direction, i, i < l - 1, branchOriginPos
-        );
-        //);
-
-        if (flag1) {
-            //list.add(
-            this.generateBranch(pLevel, pBlockSetter, pRandom, pFreeTreeHeight, pPos, pConfig,
-                function, direction.getOpposite(), j, j < l - 1, branchOriginPos
-            );
-            //);
+        List<FoliagePlacer.FoliageAttachment> foliageAttachments = new ArrayList<>();
+        if (flag) {
+            foliageAttachments.add(new FoliagePlacer.FoliageAttachment(pPos.above(l * this.scaleFactor), 0, false));
         }
 
-        return list;
+        Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(pRandom).getClockWise();
+        this.placeBranches(pLevel, pBlockSetter, pRandom, pFreeTreeHeight, pPos, pConfig, i, j, flag1, l, direction, foliageAttachments);
+
+        return foliageAttachments;
+    }
+
+    private void placeBranches(
+            LevelSimulatedReader pLevel, BiConsumer<BlockPos, BlockState> pBlockSetter,
+            RandomSource pRandom, int pFreeTreeHeight, BlockPos pPos, TreeConfiguration pConfig,
+            int topBranchOffset, int secondBranchOffset, boolean atLeastTwoBranches, int treeHeight,
+            Direction direction, List<FoliagePlacer.FoliageAttachment> foliageAttachments
+    ) {
+        BlockPos.MutableBlockPos branchOriginPos = new BlockPos.MutableBlockPos();
+        Function<BlockState, BlockState> function = (blockState) -> blockState.trySetValue(RotatedPillarBlock.AXIS, direction.getAxis());
+
+        foliageAttachments.add(
+                this.generateBranch(pLevel, pBlockSetter, pRandom, pFreeTreeHeight, pPos, pConfig, function,
+                        direction, topBranchOffset, topBranchOffset < treeHeight - 1, branchOriginPos
+                )
+        );
+
+        if (atLeastTwoBranches) {
+            foliageAttachments.add(
+                    this.generateBranch(pLevel, pBlockSetter, pRandom, pFreeTreeHeight, pPos, pConfig,
+                            function, direction.getOpposite(), secondBranchOffset, secondBranchOffset < treeHeight - 1, branchOriginPos
+                    )
+            );
+        }
     }
 
     private FoliagePlacer.FoliageAttachment generateBranch(
@@ -164,8 +171,7 @@ public class ToweringTrunkPlacer extends CherryTrunkPlacer {
         while (true) {
             int i1 = pCurrentPos.distManhattan(blockpos);
             if (i1 == 0) {
-                return new FoliagePlacer.FoliageAttachment(
-                    blockpos.above(this.scaleFactor), 0, false);
+                return new FoliagePlacer.FoliageAttachment(blockpos.above(this.scaleFactor), 0, false);
             }
 
             float f = (float)Math.abs(blockpos.getY() - pCurrentPos.getY()) / (float)i1;
@@ -200,7 +206,8 @@ public class ToweringTrunkPlacer extends CherryTrunkPlacer {
         for (BlockPos targetPos : BlockPos.betweenClosed(
                 pPos, pPos.offset(scaleOffset, scaleOffset, scaleOffset))
         ) {
-            if (!this.validTreePos(pLevel, pPos)) return false;
+            // logs can generate through other logs
+            if (!this.isFree(pLevel, pPos)) return false;
             targets.add(targetPos.immutable());
         }
 
